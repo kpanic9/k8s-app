@@ -1,0 +1,18 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: backup
+spec:
+  schedule: "0 0 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: mysql-backup-job
+            image: mysql:5.6
+            args:
+            - /bin/sh
+            - -c
+            - mysqldump -u root -ppassword -h mysql test > /tmp/appdump-$(date +%F).sql ; scp /tmp/appdump-$(date +%F).sql root@<backupserver>:/mysql/app
+          restartPolicy: OnFailure
